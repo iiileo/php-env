@@ -92,11 +92,13 @@ RUN apt-get install -y libssl-dev libcurl4-openssl-dev \
 RUN wget -q "https://github.com/aptible/supercronic/releases/download/v0.2.23/supercronic-linux-amd64" \
   -O /usr/bin/supercronic \
   && chmod +x /usr/bin/supercronic \
-  && mkdir -p /etc/supercronic
+  && mkdir -p /app/supercronic
 
 # Composer
 RUN curl -sS https://getcomposer.org/installer | php \
     && mv composer.phar /usr/local/bin/composer
+
+RUN apt-get install -y gosu
 
 WORKDIR /app
 
@@ -105,5 +107,6 @@ COPY ./php.ini /usr/local/etc/php/php.ini
 COPY ./www.conf /usr/local/etc/php-fpm.d/www.conf
 
 RUN chmod +x /app/run.sh
+RUN chown -R www-data:www-data /app
 
 ENTRYPOINT [ "/app/run.sh" ]

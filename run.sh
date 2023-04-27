@@ -16,12 +16,12 @@ if [ "$1" != "" ]; then
 elif [ ${container_mode} = "php-fpm" ]; then
   exec php-fpm
 elif [ ${container_mode} = "octane" ]; then
-  exec php ${project_dir}/artisan artisan octane:start --server=swoole --host=0.0.0.0 --port=9000 --workers=auto --task-workers=auto --max-requests=500
+  gosu www-data php ${project_dir}/artisan artisan octane:start --server=swoole --host=0.0.0.0 --port=9000 --workers=auto --task-workers=auto --max-requests=500
 elif [ ${container_mode} = "horizon" ]; then
   exec php ${project_dir}/artisan horizon
 elif [ ${container_mode} = "scheduler" ]; then
-  echo "*/1 * * * * php ${project_dir}/artisan schedule:run --verbose --no-interaction" > /app/supercronic/laravel
-  exec supercronic /etc/supercronic/laravel
+  gosu www-data echo "*/1 * * * * php ${project_dir}/artisan schedule:run --verbose --no-interaction" > /app/supercronic/laravel
+  gosu www-data  supercronic /etc/supercronic/laravel
 else
   echo "Container mode mismatched."
   exit 1
