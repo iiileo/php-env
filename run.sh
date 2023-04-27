@@ -21,7 +21,7 @@ elif [ ${container_mode} = "horizon" ]; then
   exec php ${project_dir}/artisan horizon
 elif [ ${container_mode} = "scheduler" ]; then
   gosu www-data echo "*/1 * * * * php ${project_dir}/artisan schedule:run --verbose --no-interaction" > /app/supercronic/laravel
-  gosu www-data  supercronic /etc/supercronic/laravel
+  gosu www-data  supercronic /app/supercronic/laravel
 else
   echo "Container mode mismatched."
   exit 1
