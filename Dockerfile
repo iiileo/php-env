@@ -55,7 +55,12 @@ RUN docker-php-ext-install -j$(nproc) pdo_mysql
 RUN docker-php-ext-install -j$(nproc) sockets
 
 # zip
-RUN docker-php-ext-configure zip && docker-php-ext-install zip;
+RUN docker-php-ext-configure zip && docker-php-ext-install zip
+
+# opcache
+RUN docker-php-ext-install opcache
+
+COPY ./opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
 # memcached
 RUN pecl install memcached-3.2.0 \
@@ -83,8 +88,7 @@ RUN apt-get install -y libssl-dev libcurl4-openssl-dev \
 RUN wget -q "https://github.com/aptible/supercronic/releases/download/v0.2.23/supercronic-linux-amd64" \
   -O /usr/bin/supercronic \
   && chmod +x /usr/bin/supercronic \
-  && mkdir -p /etc/supercronic \
-  && echo "*/1 * * * * php ${ROOT}/artisan schedule:run --verbose --no-interaction" > /etc/supercronic/laravel
+  && mkdir -p /etc/supercronic
 
 
 WORKDIR /app

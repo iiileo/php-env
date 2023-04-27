@@ -20,6 +20,7 @@ elif [ ${container_mode} = "octane" ]; then
 elif [ ${container_mode} = "horizon" ]; then
   exec php ${project_dir}/artisan horizon
 elif [ ${container_mode} = "scheduler" ]; then
+  echo "*/1 * * * * php ${project_dir}/artisan schedule:run --verbose --no-interaction" > /etc/supercronic/laravel
   exec supercronic /etc/supercronic/laravel
 else
   echo "Container mode mismatched."
