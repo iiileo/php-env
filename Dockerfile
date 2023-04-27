@@ -98,9 +98,6 @@ RUN wget -q "https://github.com/aptible/supercronic/releases/download/v0.2.23/su
 RUN curl -sS https://getcomposer.org/installer | php \
     && mv composer.phar /usr/local/bin/composer
 
-# Gosu
-RUN apt-get install -y gosu
-
 WORKDIR /app
 
 COPY ./run.sh /app/
