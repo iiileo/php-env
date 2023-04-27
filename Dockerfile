@@ -101,6 +101,8 @@ RUN curl -sS https://getcomposer.org/installer | php \
 WORKDIR /app
 
 COPY ./run.sh /app/
+COPY ./php.ini /usr/local/etc/php/php.ini
+COPY ./www.conf /usr/local/etc/php-fpm.d/www.conf
 
 RUN chmod +x /app/run.sh
 
