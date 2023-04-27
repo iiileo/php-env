@@ -1,5 +1,9 @@
 FROM php:8.2-fpm
 
+RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list \
+    && sed -i 's/security.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list \
+    && apt-get update
+
 # 
 RUN apt-get update; \
   apt-get upgrade -yqq; \
@@ -90,6 +94,9 @@ RUN wget -q "https://github.com/aptible/supercronic/releases/download/v0.2.23/su
   && chmod +x /usr/bin/supercronic \
   && mkdir -p /etc/supercronic
 
+# Composer
+RUN curl -sS https://getcomposer.org/installer | php \
+    && mv composer.phar /usr/local/bin/composer
 
 WORKDIR /app
 
