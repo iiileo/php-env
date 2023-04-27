@@ -105,5 +105,5 @@ COPY ./php.ini /usr/local/etc/php/php.ini
 COPY ./www.conf /usr/local/etc/php-fpm.d/www.conf
 
 RUN chmod +x /app/run.sh
-
+USER www-data
 ENTRYPOINT [ "/app/run.sh" ]
