@@ -18,7 +18,7 @@ elif [ ${container_mode} = "php-fpm" ]; then
 elif [ ${container_mode} = "octane" ]; then
   gosu www-data php ${project_dir}/artisan artisan octane:start --server=swoole --host=0.0.0.0 --port=9000 --workers=auto --task-workers=auto --max-requests=500
 elif [ ${container_mode} = "horizon" ]; then
-  exec php ${project_dir}/artisan horizon
+  gosu www-data php ${project_dir}/artisan horizon
 elif [ ${container_mode} = "scheduler" ]; then
   gosu www-data echo "*/1 * * * * php ${project_dir}/artisan schedule:run --verbose --no-interaction" > /app/supercronic/laravel
   gosu www-data  supercronic /app/supercronic/laravel
