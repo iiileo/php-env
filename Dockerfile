@@ -37,14 +37,24 @@ RUN apt-get update; \
   libxml2 \
   libzstd1 \
   procps \
-  libbz2-dev
+  libbz2-dev \
+  libtiff5-dev \
+  libxpm-dev \
+  libavif-dev \
+  libheif-dev \
+  imagemagick \
+  libmagickwand-dev
 
 # bz2
 RUN docker-php-ext-install bz2;
 
 # GD
-RUN docker-php-ext-configure gd --with-webp --with-jpeg --with-freetype \
+RUN docker-php-ext-configure gd --with-webp --with-jpeg --with-freetype --with-xpm --with-avif --with-tiff \
   && docker-php-ext-install -j$(nproc) gd 
+
+# imagick
+RUN pecl install imagick \
+  && docker-php-ext-enable imagick
 
 # mysqli
 RUN docker-php-ext-install -j$(nproc) mysqli
