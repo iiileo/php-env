@@ -1,8 +1,6 @@
 FROM php:8.2-fpm
 
-RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list \
-    && sed -i 's/security.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list \
-    && apt-get update
+RUN apt-get update
 
 # 
 RUN apt-get update; \
@@ -49,7 +47,7 @@ RUN apt-get update; \
 RUN docker-php-ext-install bz2;
 
 # GD
-RUN docker-php-ext-configure gd --with-webp --with-jpeg --with-freetype --with-xpm --with-avif --with-tiff \
+RUN docker-php-ext-configure gd --with-webp --with-jpeg --with-freetype --with-xpm --with-avif \
   && docker-php-ext-install -j$(nproc) gd 
 
 # imagick
