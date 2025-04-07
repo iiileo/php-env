@@ -1,12 +1,4 @@
-FROM php:8.2-fpm
-
-# 获取Debian公钥
-RUN apt-get update || true \
-  && apt-get install -y --no-install-recommends gnupg curl ca-certificates \
-  && for key in 0E98404D386FA1D9 6ED0E7B82643E131 F8D2585B8783D481 54404762BBB6E853 BDE6D2B9216EC7A8; do \
-       gpg --no-default-keyring --keyring /etc/apt/trusted.gpg.d/debian-archive.gpg \
-           --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys $key; \
-     done
+FROM php:8.2-fpm-bullseye
 
 # 安装所有依赖并配置PHP扩展
 RUN apt-get update && apt-get upgrade -yqq \
