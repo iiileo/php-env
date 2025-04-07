@@ -1,5 +1,14 @@
 FROM php:8.2-fpm
 
+# 添加Debian GPG密钥以修复apt-get更新问题
+RUN apt-get update || true \
+    && apt-get install -y gnupg2 \
+    && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0E98404D386FA1D9 \
+    && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6ED0E7B82643E131 \
+    && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F8D2585B8783D481 \
+    && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 54404762BBB6E853 \
+    && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys BDE6D2B9216EC7A8
+
 RUN apt-get update
 
 # 
