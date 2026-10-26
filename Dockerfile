@@ -1,6 +1,6 @@
 # Debian 11 (bullseye) LTS 已于 2026-08-31 结束，官方源已下线，改用 bookworm。
 # 不要用 php:8.2-fpm（当前指向 trixie），避免发行版被悄悄升级。
-FROM php:8.2-fpm-bookworm
+FROM php:8.2.35-fpm
 
 # 安装所有依赖并配置PHP扩展
 RUN set -eux; \
