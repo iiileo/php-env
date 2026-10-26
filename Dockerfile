@@ -1,9 +1,9 @@
 FROM php:8.2-fpm-bullseye
 
 # 安装所有依赖并配置PHP扩展
-RUN apt-get update && apt-get upgrade -yqq \
-  && pecl -q channel-update pecl.php.net \
-  && apt-get install -yqq --no-install-recommends --show-progress \
+RUN set -eux; \
+  apt-get update; \
+  apt-get install -y --no-install-recommends \
     apt-utils gnupg gosu git curl wget libcurl4-openssl-dev ca-certificates \
     supervisor libmemcached-dev libz-dev libbrotli-dev libpq-dev libjpeg-dev \
     libpng-dev libfreetype6-dev libssl-dev libwebp-dev libmcrypt-dev libonig-dev \
