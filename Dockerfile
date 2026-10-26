@@ -49,7 +49,7 @@ RUN set -eux; \
         --with-xpm \
         --with-avif; \
     docker-php-ext-install -j"$(nproc)" gd; \
-    pecl install imagick-3.7.0 memcached-3.2.0 redis-5.3.7; \
+    pecl install imagick-3.8.0 memcached-3.2.0 redis-5.3.7; \
     docker-php-ext-enable imagick memcached redis; \
     case "$TARGETARCH" in \
         amd64) SUPERCRONIC_ARCH=amd64 ;; \
@@ -73,7 +73,7 @@ COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 COPY ./opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 COPY ./php.ini /usr/local/etc/php/php.ini
 COPY ./php-cli.ini /usr/local/etc/php/php-cli.ini
-COPY ./www.conf /usr/local/etc/php-fpm.d/www.conf
+COPY ./www.conf /usr/local/etc/php-fpm.d/zz-www.conf
 COPY --chmod=755 --chown=www-data:www-data ./run.sh /app/run.sh
 
 WORKDIR /app
