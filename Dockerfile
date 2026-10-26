@@ -1,65 +1,81 @@
-# Debian 11 (bullseye) LTS 已于 2026-08-31 结束，官方源已下线，改用 bookworm。
-# 不要用 php:8.2-fpm（当前指向 trixie），避免发行版被悄悄升级。
+# syntax=docker/dockerfile:1
+
+# 8.2.35-fpm 当前基于 Debian 13 (trixie)。libpcre3 已从 Trixie 移除，PHP 8.2 使用 PCRE2。
 FROM php:8.2.35-fpm
 
-# 安装所有依赖并配置PHP扩展
+ARG TARGETARCH=amd64
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    TZ=Asia/Shanghai
+
 RUN set -eux; \
-  apt-get update; \
-  apt-get install -y --no-install-recommends \
-    apt-utils gnupg gosu git curl wget libcurl4-openssl-dev ca-certificates \
-    supervisor libmemcached-dev libz-dev libbrotli-dev libpq-dev libjpeg-dev \
-    libpng-dev libfreetype6-dev libssl-dev libwebp-dev libmcrypt-dev libonig-dev \
-    libzip-dev zip unzip libargon2-1 libidn2-0 libpcre2-8-0 libpcre3 libxml2 \
-    libzstd1 procps libbz2-dev libtiff-dev libxpm-dev libavif-dev libheif-dev \
-    imagemagick libmagickwand-dev \
-  # 安装和配置PHP扩展
-  && docker-php-ext-install bz2 \
-  && docker-php-ext-configure gd --with-webp --with-jpeg --with-freetype --with-xpm --with-avif \
-  && docker-php-ext-install -j$(nproc) gd \
-  && pecl install imagick \
-  && docker-php-ext-enable imagick \
-  && docker-php-ext-install -j$(nproc) mysqli pcntl pdo_mysql sockets \
-  && docker-php-ext-configure zip \
-  && docker-php-ext-install zip opcache \
-  # 安装memcached扩展
-  && pecl install memcached-3.2.0 \
-  && docker-php-ext-enable memcached \
-  # 安装redis扩展
-  && pecl install redis-5.3.7 \
-  && docker-php-ext-enable redis \
-  # 安装swoole扩展
-  && docker-php-source extract \
-  && mkdir /usr/src/php/ext/swoole \
-  && wget https://github.com/swoole/swoole-src/archive/refs/tags/v5.0.2.tar.gz \
-  && tar -xvf v5.0.2.tar.gz --strip-components=1 -C /usr/src/php/ext/swoole \
-  && docker-php-ext-configure swoole \
-    --enable-mysqlnd \
-    --enable-openssl \
-    --enable-sockets --enable-swoole-curl \
-  && docker-php-ext-install -j$(nproc) swoole \
-  && rm -rf v5.0.2.tar.gz \
-  && docker-php-source delete \
-  # 安装Laravel调度器
-  && wget -q "https://github.com/aptible/supercronic/releases/download/v0.2.23/supercronic-linux-amd64" \
-    -O /usr/bin/supercronic \
-  && chmod +x /usr/bin/supercronic \
-  && mkdir -p /app/supercronic \
-  # 安装Composer
-  && curl -sS https://getcomposer.org/installer | php \
-  && mv composer.phar /usr/local/bin/composer \
-  # 清理apt缓存以减小镜像大小
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/*
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+        $PHPIZE_DEPS \
+        git \
+        wget \
+        gosu \
+        procps \
+        libmemcached-dev \
+        zlib1g-dev \
+        libjpeg-dev \
+        libpng-dev \
+        libfreetype6-dev \
+        libssl-dev \
+        libwebp-dev \
+        libonig-dev \
+        libzip-dev \
+        libbz2-dev \
+        libtiff-dev \
+        libxpm-dev \
+        libavif-dev \
+        libheif-dev \
+        libmagickwand-dev \
+        imagemagick \
+        zip \
+        unzip; \
+    docker-php-ext-install -j"$(nproc)" \
+        bz2 \
+        mysqli \
+        pcntl \
+        pdo_mysql \
+        sockets \
+        zip \
+        opcache; \
+    docker-php-ext-configure gd \
+        --with-webp \
+        --with-jpeg \
+        --with-freetype \
+        --with-xpm \
+        --with-avif; \
+    docker-php-ext-install -j"$(nproc)" gd; \
+    pecl install imagick-3.7.0 memcached-3.2.0 redis-5.3.7; \
+    docker-php-ext-enable imagick memcached redis; \
+    case "$TARGETARCH" in \
+        amd64) SUPERCRONIC_ARCH=amd64 ;; \
+        arm64) SUPERCRONIC_ARCH=arm64 ;; \
+        *) echo "Unsupported architecture: $TARGETARCH"; exit 1 ;; \
+    esac; \
+    wget -q \
+        "https://github.com/aptible/supercronic/releases/download/v0.2.23/supercronic-linux-${SUPERCRONIC_ARCH}" \
+        -O /usr/bin/supercronic; \
+    chmod 0755 /usr/bin/supercronic; \
+    mkdir -p /app/supercronic; \
+    chown -R www-data:www-data /app; \
+    apt-get purge -y --auto-remove \
+        -o APT::AutoRemove::RecommendsImportant=false \
+        $PHPIZE_DEPS; \
+    apt-get clean; \
+    rm -rf /var/lib/apt/lists/* /tmp/*
+
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
 COPY ./opcache.ini /usr/local/etc/php/conf.d/opcache.ini
-COPY ./run.sh /app/
 COPY ./php.ini /usr/local/etc/php/php.ini
 COPY ./php-cli.ini /usr/local/etc/php/php-cli.ini
 COPY ./www.conf /usr/local/etc/php-fpm.d/www.conf
-
-RUN chmod +x /app/run.sh \
-  && chown -R www-data:www-data /app
+COPY --chmod=755 --chown=www-data:www-data ./run.sh /app/run.sh
 
 WORKDIR /app
 
-ENTRYPOINT [ "/app/run.sh" ]
+ENTRYPOINT ["/app/run.sh"]
