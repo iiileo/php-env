@@ -1,4 +1,7 @@
-FROM php:8.2-fpm-bullseye
+# Debian 11 (bullseye) LTS 已于 2026-08-31 结束，官方源已下线。
+# 官方 PHP 镜像也已停止维护 -bullseye 标签，改用仍在维护的 bookworm。
+# 不要用 php:8.2-fpm（当前指向 trixie），避免发行版被悄悄升级。
+FROM php:8.2-fpm-bookworm
 
 # 安装所有依赖并配置PHP扩展
 RUN set -eux; \
@@ -8,7 +11,7 @@ RUN set -eux; \
     supervisor libmemcached-dev libz-dev libbrotli-dev libpq-dev libjpeg-dev \
     libpng-dev libfreetype6-dev libssl-dev libwebp-dev libmcrypt-dev libonig-dev \
     libzip-dev zip unzip libargon2-1 libidn2-0 libpcre2-8-0 libpcre3 libxml2 \
-    libzstd1 procps libbz2-dev libtiff5-dev libxpm-dev libavif-dev libheif-dev \
+    libzstd1 procps libbz2-dev libtiff-dev libxpm-dev libavif-dev libheif-dev \
     imagemagick libmagickwand-dev \
   # 安装和配置PHP扩展
   && docker-php-ext-install bz2 \
